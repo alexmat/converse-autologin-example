@@ -20,9 +20,17 @@
                 var loadConverse = function() {
                         converse.plugins.add('clearonlogout', {
                                 initialize: function () {
-                                        this._converse.api.listen.on('logout', function () {
+                                        var _converse = this._converse;
+
+                                        _converse.api.listen.on('logout', function () {
                                                 console.log("Clearing username and password from localStorage...");
                                                 localStorage.username = "";
+                                                localStorage.password = "";
+                                                window.location.href = "/";
+                                        });
+
+                                        _converse.api.listen.on('disconnected', function() {
+                                                alert(_converse.disconnection_reason);
                                                 localStorage.password = "";
                                                 window.location.href = "/";
                                         });
