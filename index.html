@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link type="text/css" rel="stylesheet" media="screen" href="https://cdn.conversejs.org/4.1.2/css/converse.min.css" />
+        <script src="https://cdn.conversejs.org/3rdparty/libsignal-protocol.min.js"></script>
+        <script>
+                var loadJS = function(url, implementationCode, location){
+                        var scriptTag = document.createElement('script');
+                        scriptTag.src = url;
+
+                        scriptTag.onload = implementationCode;
+                        scriptTag.onreadystatechange = implementationCode;
+
+                        location.appendChild(scriptTag);
+                }
+
+                var loadConverse = function() {
+                        converse.plugins.add('clearonlogout', {
+                                initialize: function () {
+                                        this._converse.api.listen.on('logout', function () {
+                                                console.log("Clearing username and password from localStorage...");
+                                                localStorage.username = "";
+                                                localStorage.password = "";
+                                                window.location.href = "/";
+                                        });
+                                },
+                        })
+
+                        converse.initialize({
+                                whitelisted_plugins: ['clearonlogout'],
+                                authentication: 'login',
+                                auto_login: true,
+                                jid: localStorage.username,
+                                password: localStorage.password,
+                                auto_reconnect: true,
+                                view_mode: 'fullscreen'
+                        });
+                }
+
+                function validateLogin() {
+                        var username = document.forms["loginForm"]["username"].value;
+                        var password = document.forms["loginForm"]["password"].value;
+                        if (username == "" || password == "") {
+                                alert("Username and password must be filled out!");
+                        } else {
+                                localStorage.username = username;
+                                localStorage.password = password;
+                                loadJS('https://cdn.conversejs.org/4.1.2/dist/converse.min.js', loadConverse, document.body);
+                        }
+                }
+
+                window.onload = function() {
+                        if(localStorage.username != "" && localStorage.password != "") {
+                                console.log("Have user/pass, loading converse...");
+                                loadJS('https://cdn.conversejs.org/4.1.2/dist/converse.min.js', loadConverse, document.body);
+                        }
+                }
+        </script>
+</head>
+<body>
+        <form name="loginForm" onsubmit="validateLogin(); return false;">
+                Username: <input type="text" name="username"><br/>
+                Password: <input type="password" name="password"><br/>
+                <input type="submit" value="Login">
+        </form>
+</body>
+</html>
